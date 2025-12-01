@@ -25,8 +25,7 @@ public class Admin {
 
     @Field("phone_number")
     private String phoneNumber;
+
     
-    // Admin file JSON của bạn không có address
-    
-    private String role; // Luôn là "ADMIN"
+    private String role; 
 }
