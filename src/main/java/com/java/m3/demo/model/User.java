@@ -30,3 +30,16 @@ public class User {
 
     private String role;
 }
+
+// json test data
+// {
+//     "_id" : ObjectId("692bc9e046a63b59921b1d4f"),
+//     "id" : "user_06",
+//     "username" : "vuthilan",
+//     "password" : "password123",
+//     "full_name" : "Vũ Thị Lan",
+//     "email" : "lan.vu@email.com",
+//     "phone_number" : "0944556677",
+//     "address" : "88 Đường 3/2, Quận 10, TP.HCM",
+//     "role" : "USER"
+// }

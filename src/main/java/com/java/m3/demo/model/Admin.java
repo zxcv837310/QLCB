@@ -15,7 +15,7 @@ public class Admin {
     @Id
     private String id;
 
-    private String username;
+    private String username; 
     private String password;
 
     @Field("full_name")
@@ -29,3 +29,15 @@ public class Admin {
     
     private String role; 
 }
+
+// json test data
+// {
+//     "_id" : ObjectId("692bca13a2d0295989ab0e26"),
+//     "id" : "admin_01",
+//     "username" : "admin_main",
+//     "password" : "adminpassword888",
+//     "full_name" : "Trần Quản Trị",
+//     "email" : "admin@shop.com",
+//     "phone_number" : "0999999999",
+//     "role" : "ADMIN"
+// }
