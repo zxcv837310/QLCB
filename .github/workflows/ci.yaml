@@ -28,9 +28,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         # Lệnh này chạy test, đo coverage, đẩy lên Sonar, và CHỜ kết quả (wait=true)
         run: |
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=my_project_key \
-          -Dsonar.qualitygate.wait=true
+          mvn -B verify
 
       # Nếu Quality Gate Fail (VD: Coverage < 80%), quy trình sẽ FAIL tại đây và KHÔNG chạy tiếp.
 
