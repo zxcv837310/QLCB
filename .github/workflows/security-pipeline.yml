@@ -44,7 +44,7 @@ jobs:
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:stable
           # Web chạy 8080, ZAP chạy 8081 -> Không xung đột
-          docker run --add-host host.docker.internal:host-gateway -v ${{ github.workspace }}:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:8080 -r zap_report.html -z "-port 8081"
+          docker run -v ${{ github.workspace }}:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://192.168.100.205:8080 -r zap_report.html -z "-port 8081"
           
       # 6. Dọn dẹp
       - name: Stop App
