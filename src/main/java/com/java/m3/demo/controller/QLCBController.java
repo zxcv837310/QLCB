@@ -323,15 +323,6 @@ public class QLCBController {
     public String brokenAccessControl(@RequestParam("id") String id, 
                                       Model model, HttpSession session, HttpServletRequest request) {
         addHelpPageDefaults(model, session, request);
-        
-        // --- PHÂN TÍCH LỖI ---
-        // ĐÚNG RA PHẢI CÓ ĐOẠN CHECK QUYỀN NÀY:
-        // User currentUser = getCurrentUser(session);
-        // if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
-        //     return "error/403"; // Chặn ngay nếu không phải Admin
-        // }
-        
-        // NHƯNG Ở ĐÂY KHÔNG CÓ KHOÁ BẢO VỆ:
         model.addAttribute("bacResult", "SYSTEM ALERT: Đã thực hiện lệnh XÓA VĨNH VIỄN cơn bão có ID: [" + id + "].\n(Lỗ hổng: Server đã thực thi lệnh nhạy cảm mà không kiểm tra quyền Admin!)");
         return "help";
     }
@@ -405,3 +396,4 @@ public class QLCBController {
 // Test pipeline 10
 // Test pipeline 11
 // Test pipeline 12
+// Test pipeline 13
