@@ -32,11 +32,10 @@ jobs:
       # 4. Khởi động Web App
       - name: Start Spring Boot App
         run: |
-          echo "🚀 Đang khởi động App..."
-          # Chạy ngầm và không chặn terminal
+          echo "🚀 Starting App..."
           Start-Process -FilePath "mvn" -ArgumentList "spring-boot:run","-DskipTests" -NoNewWindow
-          echo "⏳ Đợi 60 giây cho chắc chắn..."
-          sleep 60
+          echo "⏳ Waiting 120s for server startup..."
+          sleep 120
 
       # 5. DAST Scan (OWASP ZAP)
       # continue-on-error: true -> BẮT BUỘC để pipeline xanh dù tìm ra lỗi
@@ -45,7 +44,7 @@ jobs:
         run: |
           docker pull ghcr.io/zaproxy/zaproxy:stable
           # Web chạy 8080, ZAP chạy 8081 -> Không xung đột
-          docker run --network="host" -v ${{ github.workspace }}:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:8080 -r zap_report.html -z "-port 8081"
+          docker run -v ${{ github.workspace }}:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://host.docker.internal:8080 -r zap_report.html -z "-port 8081"
           
       # 6. Dọn dẹp
       - name: Stop App
