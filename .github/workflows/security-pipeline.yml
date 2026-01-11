@@ -27,7 +27,7 @@ jobs:
       # Thêm -DskipTests để tránh lỗi Unit Test làm sập luồng (nếu có test lỗi)
       - name: Build & SAST Scan
         run: |
-          mvn clean verify sonar:sonar -DskipTests -Dsonar.projectKey=qlcb-project -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          mvn clean verify sonar:sonar "-DskipTests" "-Dsonar.projectKey=qlcb-project" "-Dsonar.host.url=http://localhost:9000" "-Dsonar.login=${{ secrets.SONAR_TOKEN }}"
       
       # 4. Khởi động Web App
       - name: Start Spring Boot App
