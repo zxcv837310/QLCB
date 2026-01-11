@@ -6,10 +6,6 @@
     <title>QLCB - Trợ giúp & Hỏi đáp</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="img/favicon.ico" rel="icon">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
     <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
@@ -22,208 +18,77 @@
     <div class="container-xxl position-relative bg-white d-flex p-0">
         
         <div class="sidebar pe-4 pb-3">
-            <nav class="navbar bg-light navbar-light">
+             <nav class="navbar bg-light navbar-light">
                 <a th:href="@{/}" class="navbar-brand mx-4 mb-3">
                     <h3 class="text-primary"><i class="fa fa-wind me-2"></i>QLCB</h3>
                 </a>
-                <div class="d-flex align-items-center ms-4 mb-4">
-                    <div class="position-relative">
-                        <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
-                        <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
-                    </div>
-                    <div class="ms-3">
-                        <h6 class="mb-0" th:text="${currentUser != null ? currentUser.fullName : 'Khách'}">User</h6>
-                        <span th:text="${currentUser != null ? currentUser.role : 'Guest'}">Role</span>
-                    </div>
-                </div>
-                
                 <div class="navbar-nav w-100">
-                    <a th:href="@{/}" class="nav-item nav-link" th:classappend="${currentURI == '/' ? 'active' : ''}">
-                        <i class="fa fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                    
-                    <a th:href="@{${currentUser != null ? '/stats' : '/login'}}" class="nav-item nav-link"
-                       th:classappend="${currentURI == '/stats' ? 'active' : ''}"
-                       th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập.\')' : ''">
-                        <i class="fa fa-table me-2"></i>Bảng thông tin bão
-                    </a>
-
-                    <a th:href="@{${currentUser != null ? '/charts' : '/login'}}" class="nav-item nav-link"
-                       th:classappend="${currentURI == '/charts' ? 'active' : ''}"
-                       th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập.\')' : ''">
-                        <i class="fa fa-chart-bar me-2"></i>Biểu đồ
-                    </a>
-
-                    <a th:href="@{${currentUser != null ? '/map' : '/login'}}" class="nav-item nav-link"
-                       th:classappend="${currentURI == '/map' ? 'active' : ''}"
-                       th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập.\')' : ''">
-                        <i class="fa fa-map-marker-alt me-2"></i>Bản đồ
-                    </a>
+                    <a th:href="@{/help}" class="nav-item nav-link active"><i class="fa fa-question-circle me-2"></i>Trợ giúp</a>
                 </div>
             </nav>
         </div>
 
         <div class="content">
             <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
-                <a href="#" class="sidebar-toggler flex-shrink-0"><i class="fa fa-bars"></i></a>
-                
-                <form class="d-none d-md-flex ms-4" th:action="@{/search}" method="get">
-                    <input class="form-control border-0" type="search" name="keyword" 
-                           placeholder="Nhập tên bão hoặc năm (vd: 2024)..." style="min-width: 350px;">
-                </form>
-
-                <div class="navbar-nav align-items-center ms-auto">
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-cogs me-2"></i>Chức năng
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a th:href="@{/storm/add}" class="dropdown-item" 
-                               th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
-                                <i class="fa fa-plus-circle me-2"></i>Tạo bão mới
-                            </a>
-                            <a th:href="@{/warning}" class="dropdown-item">
-                                <i class="fa fa-exclamation-triangle me-2"></i>Cảnh báo
-                            </a>
-                            <a th:href="@{/help}" class="dropdown-item">
-                                <i class="fa fa-question-circle me-2"></i>Trợ giúp
-                            </a>
-                        </div>
-                    </div>
-
-                    <div th:if="${currentUser != null}" class="nav-item dropdown ms-3">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
-                            <span class="d-none d-lg-inline-flex" th:text="${currentUser.fullName}">User</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a th:href="@{/logout}" class="dropdown-item">Đăng xuất</a>
-                        </div>
-                    </div>
-                    <div th:if="${currentUser == null}" class="nav-item ms-3">
-                        <a th:href="@{/login}" class="btn btn-primary btn-sm">Đăng nhập</a>
-                    </div>
-                </div>
-            </nav>
+                </nav>
 
             <div class="container-fluid pt-4 px-4">
                 
                 <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fa fa-check-circle me-2"></i>Gửi câu hỏi thành công! Vui lòng chờ Admin phản hồi.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <div th:if="${param.replied}" class="alert alert-primary alert-dismissible fade show" role="alert">
-                    <i class="fa fa-check-circle me-2"></i>Đã trả lời câu hỏi thành công!
+                    <i class="fa fa-check-circle me-2"></i>Gửi câu hỏi thành công!
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
-                <div class="row g-4 mb-4" th:if="${xssContent != null or cmdResult != null or logContent != null}">
+                <div class="row g-4 mb-4" th:if="${sqlResult != null or bacResult != null or authResult != null or integrityResult != null or errorResult != null}">
                     <div class="col-12">
                         <div class="bg-warning rounded p-4 text-dark">
-                            <h4 class="mb-3"><i class="fa fa-bug me-2"></i>Kết quả Test Bảo Mật (Vulnerable Zone)</h4>
+                            <h4 class="mb-3"><i class="fa fa-bug me-2"></i>Vulnerable Zone Result (OWASP 2025)</h4>
                             
-                            <div th:if="${logContent}" class="mb-3">
-                                <strong><i class="fa fa-folder-open me-2"></i>Kết quả đọc file (Path Traversal):</strong> 
-                                <pre th:text="${logContent}" class="bg-white p-3 border mt-2 rounded"></pre>
+                            <div th:if="${sqlResult}" class="mb-3">
+                                <strong><i class="fa fa-database me-2"></i>[A05] Kết quả SQL Injection:</strong> 
+                                <pre th:text="${sqlResult}" class="bg-white p-3 border mt-2 rounded"></pre>
                             </div>
 
-                            <div th:if="${xssContent}" class="mb-3">
-                                <strong><i class="fa fa-code me-2"></i>Kết quả XSS (Reflected):</strong> 
-                                <div class="bg-white p-3 border mt-2 rounded">
-                                    Nội dung: <span th:utext="${xssContent}"></span>
-                                </div>
+                            <div th:if="${bacResult}" class="mb-3">
+                                <strong><i class="fa fa-user-lock me-2"></i>[A01] Kết quả Kiểm soát truy cập (Broken Access Control):</strong> 
+                                <pre th:text="${bacResult}" class="bg-white p-3 border mt-2 rounded text-danger fw-bold"></pre>
                             </div>
 
-                            <div th:if="${cmdResult}">
-                                <strong><i class="fa fa-terminal me-2"></i>Kết quả lệnh hệ thống (Command Injection):</strong> 
-                                <pre th:text="${cmdResult}" class="bg-white p-3 border mt-2 rounded"></pre>
+                            <div th:if="${authResult}" class="mb-3">
+                                <strong><i class="fa fa-key me-2"></i>[A07] Kết quả Xác thực (Auth Failure):</strong> 
+                                <pre th:text="${authResult}" class="bg-white p-3 border mt-2 rounded"></pre>
+                            </div>
+
+                            <div th:if="${integrityResult}" class="mb-3">
+                                <strong><i class="fa fa-box-open me-2"></i>[A08] Kết quả Deserialization (Integrity):</strong> 
+                                <pre th:text="${integrityResult}" class="bg-white p-3 border mt-2 rounded"></pre>
+                            </div>
+
+                            <div th:if="${errorResult}">
+                                <strong><i class="fa fa-bomb me-2"></i>[A10] Chi tiết lỗi hệ thống (Info Disclosure):</strong> 
+                                <pre th:text="${errorResult}" class="bg-danger text-white p-3 border mt-2 rounded" style="max-height: 300px; overflow: auto;"></pre>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row g-4 mb-4" th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
-                    <div class="col-12">
-                        <div class="bg-light rounded p-4 border border-danger">
-                            <h6 class="mb-4 text-danger d-flex align-items-center">
-                                <i class="fa fa-user-shield me-2"></i>
-                                Khu vực Admin: Câu hỏi đang chờ trả lời
-                                <span class="badge bg-danger ms-2" th:text="${pendingList.size()}">0</span>
-                            </h6>
-                            
-                            <div th:if="${pendingList == null or pendingList.isEmpty()}" class="text-muted fst-italic">
-                                Không có câu hỏi nào cần xử lý.
-                            </div>
-
-                            <div class="table-responsive" th:if="${pendingList != null and not pendingList.isEmpty()}">
-                                <table class="table table-bordered bg-white">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 20%;">Người hỏi</th>
-                                            <th style="width: 35%;">Nội dung câu hỏi</th>
-                                            <th>Trả lời của Admin</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="q : ${pendingList}">
-                                            <td>
-                                                <strong th:text="${q.askerName}">User</strong><br>
-                                                <small class="text-muted" th:text="${#dates.format(q.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
-                                            </td>
-                                            <td th:text="${q.content}">Nội dung...</td>
-                                            <td>
-                                                <form th:action="@{/help/reply}" method="post" class="d-flex gap-2">
-                                                    <input type="hidden" name="id" th:value="${q.id}">
-                                                    <input type="text" name="answer" class="form-control" 
-                                                           placeholder="Nhập câu trả lời..." required>
-                                                    <button type="submit" class="btn btn-primary btn-sm" style="min-width: 80px;">
-                                                        Gửi
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="row g-4">
                     <div class="col-sm-12 col-xl-7">
                         <div class="bg-light rounded p-4" style="min-height: 100%;">
                             <h6 class="mb-4 text-primary"><i class="fa fa-comments me-2"></i>Hỏi đáp thường gặp</h6>
-                            
                             <div class="accordion" id="accordionExample">
                                 <div class="accordion-item" th:each="qa, iterStat : ${faqList}">
                                     <h2 class="accordion-header" th:id="'heading' + ${iterStat.index}">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" 
-                                                th:data-bs-target="'#collapse' + ${iterStat.index}" 
-                                                th:aria-expanded="${iterStat.index == 0} ? 'true' : 'false'"
-                                                th:classappend="${iterStat.index != 0} ? 'collapsed'">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                th:data-bs-target="'#collapse' + ${iterStat.index}">
                                             <span class="fw-bold" th:text="${qa.content}">Câu hỏi?</span>
                                         </button>
                                     </h2>
-                                    
                                     <div th:id="'collapse' + ${iterStat.index}" class="accordion-collapse collapse" 
-                                         th:classappend="${iterStat.index == 0} ? 'show'"
                                          th:aria-labelledby="'heading' + ${iterStat.index}">
                                         <div class="accordion-body text-dark">
-                                            <div class="d-flex">
-                                                <i class="fa fa-reply text-success me-3 mt-1"></i>
-                                                <div>
-                                                    <span th:text="${qa.answer}">Nội dung trả lời...</span>
-                                                    <br>
-                                                    <small class="text-muted fst-italic" style="font-size: 0.8em;">
-                                                        - Hỏi bởi: <span th:text="${qa.askerName}">User</span>
-                                                    </small>
-                                                </div>
-                                            </div>
+                                            <i class="fa fa-reply text-success me-2"></i> <span th:text="${qa.answer}">TL</span>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <div th:if="${faqList == null or faqList.isEmpty()}" class="text-center text-muted py-3">
-                                    Chưa có câu hỏi nào được trả lời.
                                 </div>
                             </div>
                         </div>
@@ -232,53 +97,34 @@
                     <div class="col-sm-12 col-xl-5">
                         <div class="bg-light rounded p-4" style="min-height: 100%;">
                             <h6 class="mb-4 text-primary"><i class="fa fa-paper-plane me-2"></i>Gửi câu hỏi mới</h6>
-                            
                             <form th:action="@{/help/send}" th:object="${newQuestion}" method="post">
                                 <div class="mb-3">
-                                    <label class="form-label">Họ và tên</label>
-                                    <input type="text" class="form-control" th:field="*{askerName}" 
-                                           th:value="${currentUser != null ? currentUser.fullName : ''}"
-                                           placeholder="Tên của bạn" required>
+                                    <label>Họ tên</label>
+                                    <input type="text" class="form-control" th:field="*{askerName}" required>
                                 </div>
-                                
                                 <div class="mb-3">
-                                    <label class="form-label">Email (Tùy chọn)</label>
-                                    <input type="email" class="form-control" th:field="*{email}" 
-                                           placeholder="name@example.com">
+                                    <label>Câu hỏi</label>
+                                    <textarea class="form-control" th:field="*{content}" rows="3" required></textarea>
                                 </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Câu hỏi</label>
-                                    <textarea class="form-control" th:field="*{content}" rows="5" 
-                                              placeholder="Nhập nội dung câu hỏi..." required></textarea>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary w-100">
-                                    Gửi ngay <i class="fa fa-arrow-right ms-2"></i>
-                                </button>
+                                <button type="submit" class="btn btn-primary w-100">Gửi ngay</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-
+            
             <div class="container-fluid pt-4 px-4">
                 <div class="bg-light rounded-top p-4">
                     <div class="row">
-                        <div class="col-12 text-center">&copy; <a href="#">QLCB System</a>, All Right Reserved.</div>
+                        <div class="col-12 text-center">&copy; QLCB System</div>
                     </div>
                 </div>
             </div>
         </div>
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
-    <script th:src="@{/lib/tempusdominus/js/moment.min.js}"></script>
-    <script th:src="@{/lib/tempusdominus/js/moment-timezone.min.js}"></script>
-    <script th:src="@{/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
     <script th:src="@{/js/main.js}"></script>
 </body>
 </html>

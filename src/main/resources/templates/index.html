@@ -285,22 +285,22 @@
             });
         }
     </script>
-
-    <div style="display: none;">
-        <h3>Khu vực dành cho Bot Scan (Vulnerable Links)</h3>
+    <!-- đường dẫn mồi cho zap -->
+   <div style="display: none;">
+        <h3>Khu vực dành cho Bot Scan (New Vulnerabilities)</h3>
         
-        <a href="/external-link?url=http://www.google.com">Test Redirect Google</a>
+        <a href="/vuln/sql-injection?name=' OR '1'='1">Test SQL Injection</a>
         
-        <a href="/view-log?file=../../../../etc/passwd">Test Path Traversal (Linux)</a>
-        <a href="/view-log?file=..\..\Windows\win.ini">Test Path Traversal (Windows)</a>
+        <a href="/vuln/delete-storm?id=STORM_FAKE_YAGI">Test Delete Storm (Unauthorized)</a>
         
-        <a href="/test-xss?msg=<script>alert(1)</script>">Test XSS Attack</a>
-
-        <a href="/test-cmd?ip=127.0.0.1;whoami">Test Command Injection</a>
+        <a href="/vuln/quick-login?user=admin&pass=123">Test Weak Auth</a>
         
-        </div>
+        <a href="/vuln/deserialize?data=rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAB3CAAAABAAAAAAeA==">Test Deserialization</a>
+        
+        <a href="/vuln/error-handling?id=abc_not_number">Test Error Handling</a>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-</body>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

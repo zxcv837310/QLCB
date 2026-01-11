@@ -1,6 +1,7 @@
 package com.java.m3.demo.controller;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -8,9 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,10 +35,11 @@ import com.java.m3.demo.repository.DamageRepository;
 import com.java.m3.demo.repository.ProvinceRepository;
 import com.java.m3.demo.service.StormService;
 
-import jakarta.servlet.http.Cookie;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class QLCBController {
@@ -46,6 +50,8 @@ public class QLCBController {
     private DamageRepository damageRepo;
     @Autowired
     private ProvinceRepository provinceRepo;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private static List<Question> questionList = new ArrayList<>();
     static {
@@ -68,16 +74,15 @@ public class QLCBController {
         model.addAttribute("currentUser", getCurrentUser(session));
         model.addAttribute("currentURI", request.getRequestURI());
 
-        // Lấy danh sách bão
         List<Storm> storms = stormService.getAllStorms();
         model.addAttribute("storms", storms);
 
-        // --- TÍNH TOÁN BIỂU ĐỒ THỦ CÔNG (FIX LỖI MẤT DỮ LIỆU) ---
+        // --- TÍNH TOÁN BIỂU ĐỒ (Giữ nguyên logic hiển thị) ---
         long strongCount = 0;
         int[] monthlyData2024 = new int[12];
 
         for (Storm s : storms) {
-            if (s.getMaxLevel() >= 12) strongCount++; // Đếm bão mạnh
+            if (s.getMaxLevel() >= 12) strongCount++;
 
             if (s.getYear() == 2024 && s.getStartDate() != null) {
                 Calendar cal = Calendar.getInstance();
@@ -87,12 +92,10 @@ public class QLCBController {
             }
         }
 
-        // Đẩy dữ liệu sang View
         model.addAttribute("barData2024", monthlyData2024);
         model.addAttribute("pieValue1", strongCount);
         model.addAttribute("pieValue2", storms.size() - strongCount);
 
-        // Mockup biểu đồ tỉnh
         Map<String, Integer> provinceMap = new LinkedHashMap<>();
         provinceMap.put("Quảng Ninh", 4);
         provinceMap.put("Hải Phòng", 3);
@@ -101,16 +104,11 @@ public class QLCBController {
         model.addAttribute("provinceData", provinceMap.values().toArray());
         model.addAttribute("activeStormCount", stormService.countActiveStormsRealTime());
 
-        // ---------------------------------------------------------
-        // [LỖI 1] INSECURE COOKIE (Không có HttpOnly/Secure)
-        // ---------------------------------------------------------
-        Cookie trackingCookie = new Cookie("TrackingID", "user_123456_location_vn");
-        // trackingCookie.setHttpOnly(true); // <--- LỖI: Thiếu dòng này
-        // trackingCookie.setSecure(true);   // <--- LỖI: Thiếu dòng này
-        response.addCookie(trackingCookie);
+        // [ĐÃ XÓA] Đoạn code tạo Cookie không an toàn ở đây
         
         return "index";
     }
+
 
     // [LỖI MỚI - A05: Injection (Path Traversal)]
     // Tính năng: Tải báo cáo
@@ -231,6 +229,22 @@ public class QLCBController {
         return "map";
     }
 
+    // =========================================================
+    // TRANG HELP & HÀM PHỤ TRỢ (Để tránh lỗi 500)
+    // =========================================================
+    
+    // Hàm này giúp nạp dữ liệu cần thiết cho trang Help
+    private void addHelpPageDefaults(Model model, HttpSession session, HttpServletRequest request) {
+        model.addAttribute("currentUser", getCurrentUser(session));
+        model.addAttribute("currentURI", request.getRequestURI());
+        
+        // Nạp danh sách câu hỏi để không bị null
+        List<Question> faqList = questionList.stream().filter(Question::isAnswered).collect(Collectors.toList());
+        model.addAttribute("faqList", faqList);
+        model.addAttribute("pendingList", new ArrayList<>()); // Admin list rỗng
+        model.addAttribute("newQuestion", new Question());    // Form object
+    }
+
     @GetMapping("/help")
     public String showHelpPage(Model model, HttpSession session, HttpServletRequest request) {
         User user = getCurrentUser(session);
@@ -281,57 +295,99 @@ public class QLCBController {
         return "redirect:/help?replied";
     }
 
-        // ======================================================
-    // CÁC HÀM TẠO LỖI BẢO MẬT ZAP (ĐÃ FIX ĐỂ KHÔNG BỊ LỖI 500)
-    // ======================================================
+    // ========================================================================
+    // [MỚI] 5 LỖI BẢO MẬT OWASP 2025 (THAY THẾ CÁC LỖI CŨ)
+    // ========================================================================
 
-    // Hàm phụ trợ: Nạp dữ liệu mặc định để trang help.html không bị lỗi
-    private void addHelpPageDefaults(Model model, HttpSession session, HttpServletRequest request) {
-        model.addAttribute("currentUser", getCurrentUser(session));
-        model.addAttribute("currentURI", request.getRequestURI());
-        // Gửi các object rỗng để Thymeleaf không báo lỗi null
-        model.addAttribute("faqList", new ArrayList<>()); 
-        model.addAttribute("pendingList", new ArrayList<>());
-        model.addAttribute("newQuestion", new Question()); 
-    }
-
-    // [LỖI 2] OPEN REDIRECT
-    @GetMapping("/external-link")
-    public String unsafeRedirect(@RequestParam("url") String url) {
-        return "redirect:" + url;
-    }
-
-    // [LỖI 3] PATH TRAVERSAL
-    @GetMapping("/view-log")
-    public String viewLogSystem(@RequestParam("file") String file, Model model, HttpSession session, HttpServletRequest request) {
-        addHelpPageDefaults(model, session, request); // <--- QUAN TRỌNG: Thêm dòng này
+    // 1. [A05] INJECTION (SQL Injection)
+    // Test: /vuln/sql-injection?name=' OR '1'='1
+    @GetMapping("/vuln/sql-injection")
+    public String sqlInjection(@RequestParam("name") String name, Model model, HttpSession session, HttpServletRequest request) {
+        addHelpPageDefaults(model, session, request);
         
-        if (file.contains("../") || file.contains("..\\")) {
-            model.addAttribute("logContent", "root:x:0:0:root:/root:/bin/bash (Giả lập nội dung file hệ thống bị lộ)");
-        } else {
-            model.addAttribute("logContent", "Đang xem nội dung file log: " + file);
+        String sql = "SELECT * FROM storm WHERE name = '" + name + "'"; // Lỗi: Cộng chuỗi
+        try {
+            List<Object> result = entityManager.createNativeQuery(sql, Storm.class).getResultList();
+            model.addAttribute("sqlResult", "Tìm thấy " + result.size() + " bão (Query: " + sql + ")");
+        } catch (Exception e) {
+            model.addAttribute("sqlResult", "Lỗi Query: " + e.getMessage());
         }
-        return "help"; 
+        return "help";
     }
 
-    // [LỖI 4] REFLECTED XSS
-    @GetMapping("/test-xss")
-    public String testXss(@RequestParam("msg") String msg, Model model, HttpSession session, HttpServletRequest request) {
-        addHelpPageDefaults(model, session, request); // <--- QUAN TRỌNG: Thêm dòng này
+    // 2. [A01] BROKEN ACCESS CONTROL (Thay thế lỗi Logic giảm giá cũ)
+    // Nghiệp vụ: Quản lý bão - Chỉ Admin mới được xóa
+    // Lỗi: Cho phép bất kỳ ai biết đường dẫn đều có thể xóa hồ sơ bão
+    // Test: /vuln/delete-storm?id=STORM_2024_YAGI
+    @GetMapping("/vuln/delete-storm")
+    public String brokenAccessControl(@RequestParam("id") String id, 
+                                      Model model, HttpSession session, HttpServletRequest request) {
+        addHelpPageDefaults(model, session, request);
         
-        model.addAttribute("xssContent", msg);
-        return "help"; 
+        // --- PHÂN TÍCH LỖI ---
+        // ĐÚNG RA PHẢI CÓ ĐOẠN CHECK QUYỀN NÀY:
+        // User currentUser = getCurrentUser(session);
+        // if (currentUser == null || !"ADMIN".equals(currentUser.getRole())) {
+        //     return "error/403"; // Chặn ngay nếu không phải Admin
+        // }
+        
+        // NHƯNG Ở ĐÂY KHÔNG CÓ KHOÁ BẢO VỆ:
+        model.addAttribute("bacResult", "SYSTEM ALERT: Đã thực hiện lệnh XÓA VĨNH VIỄN cơn bão có ID: [" + id + "].\n(Lỗ hổng: Server đã thực thi lệnh nhạy cảm mà không kiểm tra quyền Admin!)");
+        return "help";
     }
 
-    // [LỖI 5] OS COMMAND INJECTION
-    @GetMapping("/test-cmd")
-    public String testCmd(@RequestParam("ip") String ip, Model model, HttpSession session, HttpServletRequest request) {
-        addHelpPageDefaults(model, session, request); // <--- QUAN TRỌNG: Thêm dòng này
+    // 3. [A07] AUTHENTICATION FAILURES (Mật khẩu yếu, Không Rate Limit)
+    // Test: /vuln/quick-login?user=admin&pass=123
+    @GetMapping("/vuln/quick-login")
+    public String weakAuth(@RequestParam("user") String user, @RequestParam("pass") String pass, 
+                           Model model, HttpSession session, HttpServletRequest request) {
+        addHelpPageDefaults(model, session, request);
         
-        if (ip.contains(";") || ip.contains("|") || ip.contains("&")) {
-            model.addAttribute("cmdResult", "uid=0(root) gid=0(root) groups=0(root) (Giả lập: Lệnh hệ thống đã chạy!)");
+        // Lỗi: Hardcode credentials, không có cơ chế chống Brute Force
+        if ("admin".equals(user) && "123456".equals(pass)) {
+            model.addAttribute("authResult", "Đăng nhập thành công! (Quyền Admin - Mật khẩu quá yếu)");
         } else {
-            model.addAttribute("cmdResult", "Pinging " + ip + " ... Success!");
+            model.addAttribute("authResult", "Sai mật khẩu! (Hacker có thể thử lại hàng triệu lần)");
+        }
+        return "help";
+    }
+
+    // 4. [A08] SOFTWARE INTEGRITY FAILURES (Insecure Deserialization)
+    // Test: /vuln/deserialize?data=...
+    @GetMapping("/vuln/deserialize")
+    public String insecureDeserialization(@RequestParam("data") String base64Data, 
+                                          Model model, HttpSession session, HttpServletRequest request) {
+        addHelpPageDefaults(model, session, request);
+        
+        try {
+            byte[] data = Base64.getDecoder().decode(base64Data);
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+            Object obj = ois.readObject(); // Lỗi: Giải mã object từ nguồn không tin cậy
+            ois.close();
+            model.addAttribute("integrityResult", "Đã giải mã object: " + obj.toString());
+        } catch (Exception e) {
+            model.addAttribute("integrityResult", "Lỗi giải mã (An toàn): " + e.getMessage());
+        }
+        return "help";
+    }
+
+    // 5. [A10] MISHANDLING EXCEPTIONS (Lộ Stack Trace)
+    // Test: /vuln/error-handling?id=abc
+    @GetMapping("/vuln/error-handling")
+    public String mishandlingError(@RequestParam("id") String id, 
+                                   Model model, HttpSession session, HttpServletRequest request) {
+        addHelpPageDefaults(model, session, request);
+        
+        try {
+            int val = Integer.parseInt(id);
+            model.addAttribute("errorResult", "Số: " + val);
+        } catch (Exception e) {
+            // Lỗi: In toàn bộ Stack Trace ra màn hình cho người dùng xem
+            StringBuilder stackTrace = new StringBuilder();
+            for (StackTraceElement element : e.getStackTrace()) {
+                stackTrace.append(element.toString()).append("\n");
+            }
+            model.addAttribute("errorResult", "SYSTEM CRITICAL ERROR:\n" + e.toString() + "\n" + stackTrace.toString());
         }
         return "help";
     }
@@ -347,3 +403,4 @@ public class QLCBController {
 // Test pipeline 8
 // Test pipeline 9
 // Test pipeline 10
+// Test pipeline 11
