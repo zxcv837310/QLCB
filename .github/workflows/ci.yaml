@@ -1,65 +1,64 @@
-name: DevSecOps Pipeline
+name: DevSecOps (Mongo + Local Sonar + ZAP)
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  # ------------------------------------------------------------------
-  # JOB 1: BUILD & SAST (SonarQube)
-  # ------------------------------------------------------------------
-  build-and-sast:
+  # --- JOB 1: BUILD & CHECK CODE ---
+  build-analyze:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Lay code ve
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
+      - name: Cai dat Java 17
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and Analyze with SonarQube
+      - name: Build va Test (Ket noi Mongo)
+        run: mvn -B verify
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub tự cấp
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+
+      - name: Quet SonarQube (Qua Ngrok)
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        # Lệnh này chạy test, đo coverage, đẩy lên Sonar, và CHỜ kết quả (wait=true)
+      # Nếu code coverage < 80% (mặc định), nó sẽ dừng ở đây.
+
+  # --- JOB 2: TẤN CÔNG WEB ---
+  security-scan:
+    needs: build-analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lay code ve
+        uses: actions/checkout@v4
+
+      - name: Cai dat Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Khoi dong Web (Chay ngam)
         run: |
-          mvn -B verify
+          mvn spring-boot:run &
+          echo "Dang khoi dong web... Doi 30 giay..."
+          sleep 30
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      # Nếu Quality Gate Fail (VD: Coverage < 80%), quy trình sẽ FAIL tại đây và KHÔNG chạy tiếp.
-
-  # # ------------------------------------------------------------------
-  # # JOB 2: DEPLOY (Chỉ chạy khi Job 1 thành công)
-  # # ------------------------------------------------------------------
-  # deploy:
-  #   needs: build-and-sast # Bắt buộc Job 1 phải PASS mới chạy Job này
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-      
-  #     # Ví dụ deploy giả lập (Hoặc thay bằng script deploy lên AWS/VPS của bạn)
-  #     - name: Deploy to Production
-  #       run: echo "Deploying to https://myapp.com ..."
-        
-  #     # Lưu URL web vào biến môi trường để Job sau dùng
-  #     - name: Save URL for DAST
-  #       run: echo "TARGET_URL=https://myapp.com" >> $GITHUB_ENV
-
-  # # ------------------------------------------------------------------
-  # # JOB 3: DAST (OWASP ZAP) - Tấn công web sau khi deploy
-  # # ------------------------------------------------------------------
-  # dast-scan:
-  #   needs: deploy # Chạy sau khi deploy xong
-  #   runs-on: ubuntu-latest
-  #   name: Scan Web with OWASP ZAP
-  #   steps:
-  #     - name: ZAP Baseline Scan
-  #       uses: zaproxy/action-baseline@v0.9.0
-  #       with:
-  #         target: 'https://myapp.com' # Thay bằng website thật của bạn
-  #         fail_action: true  # Fail job nếu tìm thấy lỗi High/Medium
+      - name: Tan cong bang OWASP ZAP
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target: 'http://localhost:8080'
+          cmd_options: '-a'
+          fail_action: true
