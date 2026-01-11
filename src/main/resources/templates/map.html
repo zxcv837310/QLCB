@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>QLCB - Bản đồ theo dõi bão</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="img/favicon.ico" rel="icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
+    <link th:href="@{/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .storm-popup .leaflet-popup-content-wrapper {
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            font-size: 12px;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        .storm-popup .leaflet-popup-tip {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        .text-label {
+            font-size: 12px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Style cho danh sách kết quả */
+        .storm-list-item {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .storm-list-item:hover {
+            background-color: #f0f0f0;
+            color: #009cff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-xxl position-relative bg-white d-flex p-0">
+
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-light navbar-light">
+                <a th:href="@{/}" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-wind me-2"></i>QLCB</h3>
+                </a>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                        <div
+                            class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0" th:text="${currentUser != null ? currentUser.fullName : 'Khách'}">User</h6>
+                        <span th:text="${currentUser != null ? currentUser.role : 'Guest'}">Role</span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a th:href="@{/}" class="nav-item nav-link" th:classappend="${currentURI == '/' ? 'active' : ''}">
+                        <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a th:href="@{${currentUser != null ? '/stats' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/stats' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập.\')' : ''">
+                        <i class="fa fa-table me-2"></i>Bảng thông tin bão
+                    </a>
+                    <a th:href="@{${currentUser != null ? '/charts' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/charts' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập.\')' : ''">
+                        <i class="fa fa-chart-bar me-2"></i>Biểu đồ
+                    </a>
+                    <a th:href="@{${currentUser != null ? '/map' : '/login'}}" class="nav-item nav-link active"
+                        th:classappend="${currentURI == '/map' ? 'active' : ''}">
+                        <i class="fa fa-map-marker-alt me-2"></i>Bản đồ
+                    </a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="content">
+            <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+                <a href="#" class="sidebar-toggler flex-shrink-0"><i class="fa fa-bars"></i></a>
+                <form class="d-none d-md-flex ms-4" th:action="@{/search}" method="get">
+                    <input class="form-control border-0" type="search" name="keyword" th:value="${searchKeyword}"
+                        placeholder="Nhập tên bão hoặc năm (vd: 2024)..." style="min-width: 350px;">
+                </form>
+                <div class="navbar-nav align-items-center ms-auto">
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fa fa-cogs me-2"></i>Chức năng
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a th:href="@{/storm/add}" class="dropdown-item"
+                                th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
+                                <i class="fa fa-plus-circle me-2"></i>Tạo bão mới
+                            </a>
+
+                            <a th:href="@{/warning}" class="dropdown-item">
+                                <i class="fa fa-exclamation-triangle me-2"></i>Cảnh báo
+                            </a>
+
+                            <a th:href="@{/help}" class="dropdown-item">
+                                <i class="fa fa-question-circle me-2"></i>Trợ giúp
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${currentUser != null}" class="nav-item dropdown ms-3">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
+                                style="width: 40px; height: 40px;">
+                            <span class="d-none d-lg-inline-flex" th:text="${currentUser.fullName}">User</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                            <a th:href="@{/logout}" class="dropdown-item">Đăng xuất</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded h-100 p-4">
+                    <h6 class="mb-4">Bản đồ vệ tinh thời gian thực (Windy)</h6>
+                    <div
+                        style="width: 100%; height: 500px; display: flex; align-items: center; justify-content: center;">
+                        <iframe
+                            src="https://embed.windy.com/embed2.html?lat=16.0&lon=108.0&zoom=5&level=surface&overlay=wind&menu=&message=&marker=&calendar=&pressure=&type=map&location=coordinates&detail=&detailLat=16.0&detailLon=108.0&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded h-100 p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="mb-0">Lịch sử đường đi bão (2000 - 2024)</h6>
+                        <span class="badge bg-primary">Tìm thấy: <span id="stormCount">0</span> cơn bão</span>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Năm</label>
+                            <select id="yearFilter" class="form-select">
+                                <option value="all">Tất cả</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">Tháng</label>
+                            <select id="monthFilter" class="form-select">
+                                <option value="all">Tất cả</option>
+                                <option value="1">Tháng 1</option>
+                                <option value="2">Tháng 2</option>
+                                <option value="3">Tháng 3</option>
+                                <option value="4">Tháng 4</option>
+                                <option value="5">Tháng 5</option>
+                                <option value="6">Tháng 6</option>
+                                <option value="7">Tháng 7</option>
+                                <option value="8">Tháng 8</option>
+                                <option value="9">Tháng 9</option>
+                                <option value="10">Tháng 10</option>
+                                <option value="11">Tháng 11</option>
+                                <option value="12">Tháng 12</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Tỉnh đổ bộ / Ảnh hưởng</label>
+                            <select id="provinceFilter" class="form-select">
+                                <option value="all">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" onclick="filterStorms()">
+                                <i class="fa fa-filter me-2"></i>Lọc dữ liệu
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div id="stormTrackingMap"
+                                style="width: 100%; height: 600px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="h-100 border rounded p-3"
+                                style="max-height: 600px; overflow-y: auto; background: #fff;">
+                                <h6 class="mb-3 border-bottom pb-2">Danh sách bão</h6>
+                                <div id="stormListContainer">
+                                    <p class="text-muted small">Chưa có dữ liệu...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mt-2 text-muted small fst-italic">
+                        * Dữ liệu mô phỏng. Di chuyển chuột vào điểm tròn để xem chi tiết.
+                    </p>
+                </div>
+            </div>
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 text-center">&copy; <a href="#">QLCB System</a>, All Right Reserved.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment-timezone.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // --- 1. DỮ LIỆU ---
+        const coastalProvinces = [
+            "Quảng Ninh", "Hải Phòng", "Thái Bình", "Nam Định", "Ninh Bình",
+            "Thanh Hóa", "Nghệ An", "Hà Tĩnh", "Quảng Bình", "Quảng Trị", "Thừa Thiên Huế",
+            "Đà Nẵng", "Quảng Nam", "Quảng Ngãi", "Bình Định", "Phú Yên", "Khánh Hòa",
+            "Ninh Thuận", "Bình Thuận", "Bà Rịa - Vũng Tàu", "TP.HCM", "Tiền Giang",
+            "Bến Tre", "Trà Vinh", "Sóc Trăng", "Bạc Liêu", "Cà Mau", "Kiên Giang"
+        ];
+
+        // --- 2. HÀM TẠO DỮ LIỆU GIẢ LẬP (Có thêm thuộc tính month) ---
+        function generateHistoricalData() {
+            const data = [];
+            let idCounter = 1;
+
+            for (let year = 2000; year <= 2024; year++) {
+                const stormCount = Math.floor(Math.random() * 8) + 5;
+
+                for (let i = 1; i <= stormCount; i++) {
+                    const affectedProvs = [];
+                    const numProvs = Math.floor(Math.random() * 3) + 1;
+                    for (let j = 0; j < numProvs; j++) {
+                        affectedProvs.push(coastalProvinces[Math.floor(Math.random() * coastalProvinces.length)]);
+                    }
+
+                    const tracks = [];
+                    let lat = 10 + Math.random() * 10;
+                    let lng = 115 + Math.random() * 5;
+
+                    // Random tháng bắt đầu (thường là mùa bão 6-12)
+                    const startMonth = Math.floor(Math.random() * 7) + 6; // 6 -> 12
+                    const startDay = Math.floor(Math.random() * 28) + 1;
+
+                    const steps = Math.floor(Math.random() * 4) + 5;
+                    for (let k = 0; k < steps; k++) {
+                        tracks.push({
+                            lat: lat,
+                            lng: lng,
+                            time: `${startDay + k}/${startMonth} ${Math.floor(Math.random() * 23)}:00`
+                        });
+                        lat += (Math.random() - 0.2);
+                        lng -= (Math.random() * 1.5 + 0.5);
+                    }
+
+                    data.push({
+                        id: idCounter++,
+                        nameVi: `Bão số ${i}`,
+                        nameEn: `Storm ${year}-${i}`,
+                        year: year,
+                        month: startMonth, // [MỚI] Lưu tháng để lọc
+                        affected: affectedProvs,
+                        tracks: tracks
+                    });
+                }
+            }
+            return data;
+        }
+
+        const fullStormData = generateHistoricalData();
+
+        // --- 3. MAP INIT ---
+        const map = L.map('stormTrackingMap').setView([16.0, 111.0], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 10, attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let stormLayerGroup = L.layerGroup().addTo(map);
+        const colors = ['#FF0000', '#0000FF', '#FFA500', '#800080', '#008000', '#FF00FF', '#00FFFF'];
+
+        // --- 4. VẼ BÃO & CẬP NHẬT DANH SÁCH TÊN ---
+        function drawStorms(data) {
+            stormLayerGroup.clearLayers();
+            document.getElementById('stormCount').innerText = data.length;
+
+            // Xử lý danh sách bên phải
+            const listContainer = document.getElementById('stormListContainer');
+            listContainer.innerHTML = ""; // Xóa cũ
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<p class="text-center text-muted mt-3">Không tìm thấy cơn bão nào.</p>';
+                return;
+            }
+
+            // Giới hạn hiển thị nếu quá nhiều
+            const displayData = data.length > 50 ? data.slice(0, 50) : data;
+            if (data.length > 50) {
+                alert(`Tìm thấy ${data.length} bão. Chỉ hiển thị 50 cơn bão đầu tiên trên bản đồ để tránh lag.`);
+            }
+
+            displayData.forEach((storm, index) => {
+                const color = colors[index % colors.length];
+                const pointList = [];
+
+                // A. Vẽ lên bản đồ
+                storm.tracks.forEach(track => {
+                    const latLng = [track.lat, track.lng];
+                    pointList.push(latLng);
+                    const circle = L.circleMarker(latLng, {
+                        color: color, fillColor: color, fillOpacity: 0.8, radius: 4
+                    }).addTo(stormLayerGroup);
+
+                    const popupContent = `
+                        <div style="text-align:center">
+                            <strong style="color:yellow">${storm.nameVi}</strong> (${storm.nameEn})<br>
+                            Năm: ${storm.year} - Tháng: ${storm.month}<br>
+                            Vị trí: ${track.lat.toFixed(2)}, ${track.lng.toFixed(2)}<br>
+                            Thời gian: ${track.time}
+                        </div>
+                    `;
+                    circle.bindTooltip(popupContent, {
+                        permanent: false, direction: 'top', className: 'storm-popup'
+                    });
+                });
+
+                if (pointList.length > 1) {
+                    L.polyline(pointList, { color: color, weight: 2, opacity: 0.6 }).addTo(stormLayerGroup);
+                }
+
+                // B. Thêm vào danh sách bên phải
+                const item = document.createElement('div');
+                item.className = 'storm-list-item p-2 border-bottom';
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span style="display:inline-block; width:10px; height:10px; background:${color}; border-radius:50%; margin-right:8px;"></span>
+                        <div>
+                            <strong>${storm.nameVi}</strong> <span class="text-muted small">(${storm.year})</span><br>
+                            <small class="text-muted">Tháng ${storm.month} - ${storm.affected[0]}...</small>
+                        </div>
+                    </div>
+                `;
+                // Click vào tên để zoom đến bão đó (Tính năng thêm)
+                item.onclick = () => {
+                    if (storm.tracks.length > 0) {
+                        const firstPoint = storm.tracks[0];
+                        map.setView([firstPoint.lat, firstPoint.lng], 7);
+                    }
+                };
+                listContainer.appendChild(item);
+            });
+        }
+
+        // --- 5. LỌC DỮ LIỆU ---
+        function filterStorms() {
+            const yearVal = document.getElementById('yearFilter').value;
+            const monthVal = document.getElementById('monthFilter').value; // Lấy giá trị tháng
+            const provVal = document.getElementById('provinceFilter').value;
+
+            const filteredData = fullStormData.filter(storm => {
+                const matchYear = (yearVal === 'all') || (storm.year.toString() === yearVal);
+                const matchMonth = (monthVal === 'all') || (storm.month.toString() === monthVal); // So sánh tháng
+                const matchProv = (provVal === 'all') || (storm.affected.includes(provVal));
+
+                return matchYear && matchMonth && matchProv;
+            });
+
+            drawStorms(filteredData);
+        }
+
+        // --- 6. INIT ---
+        function init() {
+            // Fill Year Select
+            const yearSelect = document.getElementById('yearFilter');
+            for (let y = 2024; y >= 2000; y--) {
+                const opt = document.createElement('option');
+                opt.value = y; opt.innerText = y;
+                yearSelect.appendChild(opt);
+            }
+
+            // Fill Province Select
+            const provSelect = document.getElementById('provinceFilter');
+            coastalProvinces.forEach(prov => {
+                const opt = document.createElement('option');
+                opt.value = prov; opt.innerText = prov;
+                provSelect.appendChild(opt);
+            });
+
+            // Mặc định
+            document.getElementById('yearFilter').value = "2024";
+
+            // Vẽ Marker Hoàng Sa/Trường Sa
+            addIslandMarkers();
+
+            filterStorms();
+        }
+
+        function addIslandMarkers() {
+            L.marker([16.5, 112.0], {
+                icon: L.divIcon({
+                    className: 'text-label',
+                    html: '<b style="color:red; text-shadow: 1px 1px 2px white;">Quần đảo Hoàng Sa (VN)</b>',
+                    iconSize: [160, 20]
+                })
+            }).addTo(map);
+
+            L.marker([10.0, 114.5], {
+                icon: L.divIcon({
+                    className: 'text-label',
+                    html: '<b style="color:red; text-shadow: 1px 1px 2px white;">Quần đảo Trường Sa (VN)</b>',
+                    iconSize: [160, 20]
+                })
+            }).addTo(map);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

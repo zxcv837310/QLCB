@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments :: head}"></head>
+
+<body>
+    <div class="container-xxl position-relative bg-white d-flex p-0">
+        
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Đang tải...</span>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments :: sidebar}"></div>
+
+        <div class="content">
+            
+            <nav th:replace="~{fragments :: navbar}"></nav>
+
+            <div class="container-fluid pt-4 px-4">
+                
+                <div class="row g-4 mb-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-wind fa-3x text-primary"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Tổng số bão</p>
+                                <h6 class="mb-0" th:text="${storms != null ? storms.size() : 0}">0</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fa fa-exclamation-triangle fa-3x text-danger"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Bão mạnh (>Cấp 12)</p>
+                                <h6 class="mb-0" th:text="${storms != null ? storms.?[maxLevel >= 12].size() : 0}">0</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Danh sách các cơn bão đổ bộ vào Việt Nam</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr class="text-dark bg-light">
+                                    <th scope="col">Năm</th>
+                                    <th scope="col">Tên Tiếng Việt</th>
+                                    <th scope="col">Tên Quốc Tế</th>
+                                    <th scope="col" class="text-center">Cấp độ (Max)</th>
+                                    <th scope="col">Gió giật (km/h)</th>
+                                    <th scope="col">Ngày bắt đầu</th>
+                                    <th scope="col">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="storm : ${storms}">
+                                    <td th:text="${storm.year}" class="fw-bold">2024</td>
+                                    <td th:text="${storm.vietnameseName}">Bão số 1</td>
+                                    <td th:text="${storm.englishName}">Talim</td>
+                                    
+                                    <td class="text-center">
+                                        <span class="badge bg-danger" th:if="${storm.maxLevel >= 12}" th:text="'Cấp ' + ${storm.maxLevel}">Cấp 12</span>
+                                        <span class="badge bg-warning text-dark" th:if="${storm.maxLevel < 12}" th:text="'Cấp ' + ${storm.maxLevel}">Cấp 8</span>
+                                    </td>
+                                    
+                                    <td th:text="${storm.maxWindSpeed}">100</td>
+                                    
+                                    <td th:text="${#dates.format(storm.startDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                                    
+                                    <td>
+                                        <a class="btn btn-sm btn-primary" th:href="@{/storm/{id}(id=${storm.id})}">
+                                            <i class="fa fa-info-circle me-1"></i>Chi tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                                
+                                <tr th:if="${storms == null or storms.isEmpty()}">
+                                    <td colspan="7" class="text-center text-muted py-4">Chưa có dữ liệu bão nào.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid pt-4 px-4">
+                <div class="bg-light rounded-top p-4">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            &copy; <a href="#">QLCB System</a>, All Right Reserved. 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <div th:replace="~{fragments :: scripts}"></div>
+</body>
+
+</html>

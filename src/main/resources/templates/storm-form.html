@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Cập nhật thông tin bão</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid pt-4 px-4">
+        <div class="row justify-content-center">
+            <div class="col-sm-12 col-xl-8">
+                <div class="bg-light rounded h-100 p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0 text-primary" th:text="${storm.id == null ? 'THÊM BÃO MỚI' : 'CẬP NHẬT THÔNG TIN BÃO'}">FORM BÃO</h6>
+                        <a th:href="@{/stats}" class="btn btn-sm btn-outline-secondary">Quay lại</a>
+                    </div>
+
+                    <form th:action="@{/storm/save}" th:object="${storm}" method="post">
+                        <input type="hidden" th:field="*{id}">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tên Tiếng Việt</label>
+                                <input type="text" class="form-control" th:field="*{vietnameseName}" required placeholder="Ví dụ: Bão số 1">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tên Quốc Tế</label>
+                                <input type="text" class="form-control" th:field="*{englishName}" placeholder="Ví dụ: Talim">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Năm</label>
+                                <input type="number" class="form-control" th:field="*{year}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Cấp độ (Max)</label>
+                                <input type="number" class="form-control" th:field="*{maxLevel}" required min="1" max="20">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Gió giật (km/h)</label>
+                                <input type="number" class="form-control" th:field="*{maxWindSpeed}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ngày bắt đầu</label>
+                            <input type="date" class="form-control" th:field="*{startDate}">
+                        </div>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="isRetired" 
+                                   th:field="*{isRetired}" th:value="1">
+                            <label class="form-check-label" for="isRetired">Bão đã tan / Ngưng hoạt động</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Lưu thông tin</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

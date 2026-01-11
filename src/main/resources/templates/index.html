@@ -1,365 +1,306 @@
 <!DOCTYPE html>
-<html lang="zxx" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Cake Template">
-    <meta name="keywords" content="Cake, unica, creative, html">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cake | Home</title>
+    <meta charset="utf-8">
+    <title>QLCB - Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="img/favicon.ico" rel="icon">
 
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/flaticon.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/barfiller.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/magnific-popup.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/elegant-icons.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/nice-select.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/slicknav.min.css}" type="text/css">
-    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css">
-
-    <style>
-        .modal-login { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
-        .modal-content-login { background-color: #fefefe; margin: 10% auto; padding: 40px; border: none; width: 400px; border-radius: 10px; position: relative; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
-        .close-login { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .close-login:hover { color: #f08632; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; outline: none; }
-        .login-input:focus { border-color: #f08632; }
-        .btn-signout { background-color: #f08632; color: #ffffff !important; padding: 8px 15px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; border-radius: 4px; display: inline-flex; align-items: center; transition: all 0.3s; margin-right: 20px; }
-        .btn-signout:hover { background-color: #d66f1e; color: #ffffff !important; text-decoration: none; }
-        .btn-signout i { margin-right: 8px; font-size: 16px; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
+    <link th:href="@{/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 
 <body>
-    <div id="preloder">
-        <div class="loader"></div>
-    </div>
+    <div class="container-xxl position-relative bg-white d-flex p-0">
 
-    <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper">
-        <div class="offcanvas__cart">
-            <div class="offcanvas__cart__links">
-                <a href="#" class="search-switch"><img th:src="@{/img/icon/search.png}" alt=""></a>
-                <a href="#"><img th:src="@{/img/icon/heart.png}" alt=""></a>
-            </div>
-            <div class="offcanvas__cart__item">
-                <a th:href="@{/cart}">
-                    <img th:src="@{/img/icon/cart.png}" alt="">
-                    <span th:text="${session.cart != null ? session.cart.totalQuantity : 0}">0</span>
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-light navbar-light">
+                <a th:href="@{/}" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-wind me-2"></i>QLCB</h3>
                 </a>
-                <div class="cart__price">Cart: <span th:text="${session.cart != null ? '$' + session.cart.totalAmount : '$0.00'}">$0.00</span></div>
-            </div>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                        <div
+                            class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0" th:text="${currentUser != null ? currentUser.fullName : 'Khách'}">User</h6>
+                        <span th:text="${currentUser != null ? currentUser.role : 'Guest'}">Role</span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a th:href="@{/}" class="nav-item nav-link" th:classappend="${currentURI == '/' ? 'active' : ''}">
+                        <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/stats' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/stats' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-table me-2"></i>Bảng thông tin bão
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/charts' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/charts' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-chart-bar me-2"></i>Biểu đồ
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/map' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/map' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-map-marker-alt me-2"></i>Bản đồ
+                    </a>
+                </div>
+
+                <div th:if="${currentUser == null}" class="p-3 text-center text-muted small">
+                    <hr>
+                    <span>Vui lòng <a th:href="@{/login}">Đăng nhập</a> để xem chi tiết.</span>
+                </div>
         </div>
-        <div class="offcanvas__logo">
-            <a th:href="@{/}"><img th:src="@{/img/logo.png}" alt=""></a>
-        </div>
-        <div id="mobile-menu-wrap"></div>
-        <div class="offcanvas__option">
-            <ul>
-                <li th:if="${session.loggedInUser == null}">
-                    <a href="#" onclick="document.getElementById('loginModal').style.display='block'">Sign in</a>
-                </li>
-                <li th:if="${session.loggedInUser != null}">
-                    <a href="#">Hello, <span th:text="${session.loggedInUser.fullName}">User</span></a>
-                    <ul>
-                        <li th:if="${session.loggedInUser.role == 'ADMIN'}"><a th:href="@{/admin}">Admin Page</a></li>
-                        <li><a th:href="@{/logout}">Sign Out</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+        </nav>
     </div>
 
-    <header class="header">
-        <div class="header__top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="header__top__inner">
-                            <div class="header__top__left">
-                                <ul>
-                                    <li th:if="${session.loggedInUser == null}">
-                                        <a href="#" onclick="document.getElementById('loginModal').style.display='block'">Sign in</a>
-                                    </li>
-                                    <li th:if="${session.loggedInUser != null}">
-                                        <a href="#">Hello, <span th:text="${session.loggedInUser.fullName}">User</span></a>
-                                        <span th:if="${session.loggedInUser.role == 'ADMIN'}" class="arrow_carrot-down"></span>
-                                        <ul th:if="${session.loggedInUser.role == 'ADMIN'}">
-                                            <li><a th:href="@{/admin}">Admin Page</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="header__logo">
-                                <a th:href="@{/}"><img th:src="@{/img/logo.png}" alt=""></a>
-                            </div>
-                            <div class="header__top__right">
-                                <div class="header__top__right__links">
-                                    <a href="#" class="search-switch"><img th:src="@{/img/icon/search.png}" alt=""></a>
-                                    <a href="#"><img th:src="@{/img/icon/heart.png}" alt=""></a>
-                                </div>
-                                <div th:if="${session.loggedInUser != null}" style="display: inline-block;">
-                                    <a th:href="@{/logout}" class="btn-signout"><i class="fa fa-sign-out"></i> SIGN OUT</a>
-                                </div>
-                                <div class="header__top__right__cart">
-                                    <a th:href="@{/cart}">
-                                        <img th:src="@{/img/icon/cart.png}" alt="">
-                                        <span th:text="${session.cart != null ? session.cart.totalQuantity : 0}">0</span>
-                                    </a>
-                                    <div class="cart__price">Cart: <span th:text="${session.cart != null ? '$' + session.cart.totalAmount : '$0.00'}">$0.00</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="canvas__open"><i class="fa fa-bars"></i></div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <nav class="header__menu mobile-menu">
-                        <ul>
-                            <li class="active"><a th:href="@{/}">Home</a></li>
-                            <li><a th:href="@{/about}">About</a></li>
-                            <li><a th:href="@{/shop}">Shop</a></li>
-                            <li><a th:href="@{/order/track}">Check Order</a></li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <section class="hero">
-        <div class="hero__slider owl-carousel">
-            <div class="hero__item set-bg" th:attr="data-setbg=@{/img/hero/hero-1.jpg}">
-                <div class="container">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-lg-8">
-                            <div class="hero__text">
-                                <h2>Making your life sweeter one bite at a time!</h2>
-                                <a th:href="@{/shop}" class="primary-btn">Our cakes</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="hero__item set-bg" th:attr="data-setbg=@{/img/hero/hero-1.jpg}">
-                <div class="container">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-lg-8">
-                            <div class="hero__text">
-                                <h2>Making your life sweeter one bite at a time!</h2>
-                                <a th:href="@{/shop}" class="primary-btn">Our cakes</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="about spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-6">
-                    <div class="about__text">
-                        <div class="section-title">
-                            <span>About Cake shop</span>
-                            <h2>Cakes and bakes from the house of Queens!</h2>
-                        </div>
-                        <p>The "Cake Shop" is a Jordanian Brand that started as a small family business.</p>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <div class="about__bar">
-                        <div class="about__bar__item">
-                            <p>Cake design</p>
-                            <div id="bar1" class="barfiller">
-                                <div class="tipWrap"><span class="tip"></span></div>
-                                <span class="fill" data-percentage="95"></span>
-                            </div>
-                        </div>
-                        <div class="about__bar__item">
-                            <p>Cake Class</p>
-                            <div id="bar2" class="barfiller">
-                                <div class="tipWrap"><span class="tip"></span></div>
-                                <span class="fill" data-percentage="80"></span>
-                            </div>
-                        </div>
-                        <div class="about__bar__item">
-                            <p>Cake Recipes</p>
-                            <div id="bar3" class="barfiller">
-                                <div class="tipWrap"><span class="tip"></span></div>
-                                <span class="fill" data-percentage="90"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="categories">
-        <div class="container">
-            <div class="row">
-                <div class="categories__slider owl-carousel">
-                    <div class="categories__item">
-                        <div class="categories__item__icon">
-                            <span class="flaticon-029-cupcake-3"></span>
-                            <h5>Cupcake</h5>
-                        </div>
-                    </div>
-                    <div class="categories__item">
-                        <div class="categories__item__icon">
-                            <span class="flaticon-034-chocolate-roll"></span>
-                            <h5>Butter</h5>
-                        </div>
-                    </div>
-                    <div class="categories__item">
-                        <div class="categories__item__icon">
-                            <span class="flaticon-005-pancake"></span>
-                            <h5>Red Velvet</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-6 col-sm-6">
-                    <div class="product__item">
-                        <div class="product__item__pic set-bg" th:attr="data-setbg=@{/img/shop/product-1.jpg}">
-                            <div class="product__label">
-                                <span>Cupcake</span>
-                            </div>
-                        </div>
-                        <div class="product__item__text">
-                            <h6><a href="#">Dozen Cupcakes</a></h6>
-                            <div class="product__item__price">$32.00</div>
-                            <div class="cart_add">
-                                <a th:href="@{/shop}">View in Shop</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 </div>
-        </div>
-    </section>
-
-    <footer class="footer set-bg" th:attr="data-setbg=@{/img/footer-bg.jpg}">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="footer__widget">
-                        <h6>WORKING HOURS</h6>
-                        <ul>
-                            <li>Monday - Friday: 08:00 am – 08:30 pm</li>
-                            <li>Saturday: 10:00 am – 16:30 pm</li>
-                            <li>Sunday: 10:00 am – 16:30 pm</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="footer__about">
-                        <div class="footer__logo">
-                            <a href="#"><img th:src="@{/img/footer-logo.png}" alt=""></a>
-                        </div>
-                        <div class="footer__social">
-                            <a href="#"><i class="fa fa-facebook"></i></a>
-                            <a href="#"><i class="fa fa-twitter"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-6">
-                    <div class="footer__newslatter">
-                        <h6>Subscribe</h6>
-                        <form action="#">
-                            <input type="text" placeholder="Email">
-                            <button type="submit"><i class="fa fa-send-o"></i></button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="copyright">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-7">
-                        <p class="copyright__text text-white">Copyright &copy; 2024 All rights reserved</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <div class="search-model">
-        <div class="h-100 d-flex align-items-center justify-content-center">
-            <div class="search-close-switch">+</div>
-            <form class="search-model-form">
-                <input type="text" id="search-input" placeholder="Search here.....">
+    <div class="content">
+        <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+            <a href="#" class="sidebar-toggler flex-shrink-0"><i class="fa fa-bars"></i></a>
+            <form class="d-none d-md-flex ms-4" th:action="@{/search}" method="get">
+                <input class="form-control border-0" type="search" name="keyword" th:value="${searchKeyword}"
+                    placeholder="Nhập tên bão hoặc năm (vd: 2024)..." style="min-width: 350px;">
             </form>
-        </div>
-    </div>
+            <div class="navbar-nav align-items-center ms-auto">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-cogs me-2"></i>Chức năng
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a th:href="@{/storm/add}" class="dropdown-item"
+                            th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
+                            <i class="fa fa-plus-circle me-2"></i>Tạo bão mới
+                        </a>
 
-    <div id="loginModal" class="modal-login">
-        <div class="modal-content-login">
-            <span class="close-login" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
-            <div class="text-center mb-4">
-                <h3 style="font-family: 'Playfair Display', serif; color: #111;">Sign In</h3>
-                <p style="font-size: 14px; color: #888;">Welcome back to Cake Shop</p>
+                        <a th:href="@{/warning}" class="dropdown-item">
+                            <i class="fa fa-exclamation-triangle me-2"></i>Cảnh báo
+                        </a>
+
+                        <a th:href="@{/help}" class="dropdown-item">
+                            <i class="fa fa-question-circle me-2"></i>Trợ giúp
+                        </a>
+                    </div>
+                </div>
+                <div th:if="${currentUser != null}" class="nav-item dropdown ms-3">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
+                            style="width: 40px; height: 40px;">
+                        <span class="d-none d-lg-inline-flex" th:text="${currentUser.fullName}">User</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a th:href="@{/logout}" class="dropdown-item">Đăng xuất</a>
+                    </div>
+                </div>
+                <div th:if="${currentUser == null}" class="nav-item ms-3">
+                    <a th:href="@{/login}" class="btn btn-primary btn-sm">Đăng nhập</a>
+                </div>
             </div>
-            <form th:action="@{/login}" method="post">
-                <div class="form-group">
-                    <input type="text" name="username" class="login-input" placeholder="Username" required>
+        </nav>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                        <i class="fa fa-wind fa-3x text-primary"></i>
+                        <div class="ms-3">
+                            <p class="mb-2">Tổng số bão</p>
+                            <h6 class="mb-0" th:text="${storms != null ? storms.size() : 0}">0</h6>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="password" name="password" class="login-input" placeholder="Password" required>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                        <i class="fa fa-exclamation-triangle fa-3x text-danger"></i>
+                        <div class="ms-3">
+                            <p class="mb-2">Bão mạnh (>C12)</p>
+                            <h6 class="mb-0" th:text="${storms != null ? storms.?[maxLevel >= 12].size() : 0}">0
+                            </h6>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="site-btn w-100 mt-3">LOGIN</button>
-            </form>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                        <i class="fa fa-check-circle fa-3x text-success"></i>
+                        <div class="ms-3">
+                            <p class="mb-2">Đang hoạt động</p>
+                            <h6 class="mb-0" th:text="${activeStormCount}">0</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                        <i class="fa fa-calendar-alt fa-3x text-warning"></i>
+                        <div class="ms-3">
+                            <p class="mb-2">Năm dữ liệu</p>
+                            <h6 class="mb-0">2024</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Biểu đồ bão năm 2024 (Theo tháng)</h6>
+                        <canvas id="bar-chart"></canvas>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Tỷ lệ Bão Mạnh / Thường</h6>
+                        <canvas id="storm-level-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Các tỉnh chịu ảnh hưởng bão (Năm 2024)</h6>
+                        <div style="height: 400px; display: flex; justify-content: center;">
+                            <canvas id="province-pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light rounded-top p-4">
+                <div class="row">
+                    <div class="col-12 text-center">&copy; <a href="#">QLCB System</a>, All Right Reserved.</div>
+                </div>
+            </div>
         </div>
     </div>
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
 
-    <script th:src="@{/js/jquery-3.3.1.min.js}"></script>
-    <script th:src="@{/js/bootstrap.min.js}"></script>
-    <script th:src="@{/js/jquery.nice-select.min.js}"></script>
-    <script th:src="@{/js/jquery.barfiller.js}"></script>
-    <script th:src="@{/js/jquery.magnific-popup.min.js}"></script>
-    <script th:src="@{/js/jquery.slicknav.js}"></script>
-    <script th:src="@{/js/owl.carousel.min.js}"></script>
-    <script th:src="@{/js/jquery.nicescroll.min.js}"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/lib/chart/chart.min.js}"></script>
+    <script th:src="@{/lib/easing/easing.min.js}"></script>
+    <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+    <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment-timezone.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
     <script th:src="@{/js/main.js}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script th:inline="javascript">
-        /* Error Message Handling */
-        var errorMessage = /*[[${errorMessage}]]*/ null;
-        if (errorMessage) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: errorMessage,
-                confirmButtonColor: '#f08632'
+        // 1. LẤY DỮ LIỆU TỪ CONTROLLER (Sử dụng cú pháp comment an toàn của Thymeleaf)
+        // Nếu Controller chưa gửi dữ liệu, nó sẽ dùng giá trị mặc định sau dấu */
+
+        var rawData2024 = /*[[${barData2024}]]*/[];
+        var pieVal1 = /*[[${pieValue1}]]*/ 0;
+        var pieVal2 = /*[[${pieValue2}]]*/ 0;
+
+        var provinceLabels = /*[[${provinceLabels}]]*/["Hà Nội", "Đà Nẵng", "TP.HCM"];
+        var provinceData = /*[[${provinceData}]]*/[10, 5, 2];
+
+        // Xử lý null để tránh lỗi JS
+        var barData2024 = rawData2024 || [];
+
+        // 2. VẼ BIỂU ĐỒ CỘT (Số bão 2024)
+        if ($("#bar-chart").length) {
+            var ctx1 = $("#bar-chart").get(0).getContext("2d");
+            new Chart(ctx1, {
+                type: "bar",
+                data: {
+                    labels: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"],
+                    datasets: [{
+                        label: "Số cơn bão (2024)",
+                        data: barData2024,
+                        backgroundColor: "rgba(0, 156, 255, .7)",
+                        borderColor: "rgba(0, 156, 255, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
         }
-        /* Modal Close */
-        var modal = document.getElementById('loginModal');
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+
+        // 3. VẼ BIỂU ĐỒ TRÒN (Cấp độ)
+        if ($("#storm-level-chart").length) {
+            var ctx2 = $("#storm-level-chart").get(0).getContext("2d");
+            new Chart(ctx2, {
+                type: "pie",
+                data: {
+                    labels: ["Bão Mạnh (>=12)", "Bão Thường (<12)"],
+                    datasets: [{
+                        backgroundColor: ["rgba(235, 22, 22, .7)", "rgba(0, 156, 255, .7)"],
+                        data: [pieVal1, pieVal2]
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        // 4. VẼ BIỂU ĐỒ TRÒN (Tỉnh thành)
+        if ($("#province-pie-chart").length) {
+            var ctx3 = $("#province-pie-chart").get(0).getContext("2d");
+            new Chart(ctx3, {
+                type: "doughnut", // Dùng doughnut cho đẹp, hoặc đổi thành "pie"
+                data: {
+                    labels: provinceLabels,
+                    datasets: [{
+                        data: provinceData,
+                        backgroundColor: [
+                            "rgba(0, 156, 255, .9)",
+                            "rgba(0, 156, 255, .7)",
+                            "rgba(0, 156, 255, .5)",
+                            "rgba(0, 156, 255, .3)",
+                            "rgba(0, 156, 255, .1)"
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Để chỉnh chiều cao theo thẻ cha
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
         }
     </script>
+
+    <div style="display: none;">
+        <h3>Khu vực dành cho Bot Scan (Vulnerable Links)</h3>
+        
+        <a href="/external-link?url=http://www.google.com">Test Redirect Google</a>
+        
+        <a href="/view-log?file=../../../../etc/passwd">Test Path Traversal (Linux)</a>
+        <a href="/view-log?file=..\..\Windows\win.ini">Test Path Traversal (Windows)</a>
+        
+        <a href="/test-xss?msg=<script>alert(1)</script>">Test XSS Attack</a>
+
+        <a href="/test-cmd?ip=127.0.0.1;whoami">Test Command Injection</a>
+        
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 </body>
+
 </html>

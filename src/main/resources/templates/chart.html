@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>QLCB - Biểu đồ thống kê</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="img/favicon.ico" rel="icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/lib/owlcarousel/assets/owl.carousel.min.css}" rel="stylesheet">
+    <link th:href="@{/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css}" rel="stylesheet" />
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl position-relative bg-white d-flex p-0">
+        <div class="sidebar pe-4 pb-3">
+            <nav class="navbar bg-light navbar-light">
+                <a th:href="@{/}" class="navbar-brand mx-4 mb-3">
+                    <h3 class="text-primary"><i class="fa fa-wind me-2"></i>QLCB</h3>
+                </a>
+                <div class="d-flex align-items-center ms-4 mb-4">
+                    <div class="position-relative">
+                        <img class="rounded-circle" th:src="@{/img/user.jpg}" alt="" style="width: 40px; height: 40px;">
+                        <div
+                            class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1">
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0" th:text="${currentUser != null ? currentUser.fullName : 'Khách'}">User</h6>
+                        <span th:text="${currentUser != null ? currentUser.role : 'Guest'}">Role</span>
+                    </div>
+                </div>
+                <div class="navbar-nav w-100">
+                    <a th:href="@{/}" class="nav-item nav-link" th:classappend="${currentURI == '/' ? 'active' : ''}">
+                        <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/stats' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/stats' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-table me-2"></i>Bảng thông tin bão
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/charts' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/charts' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-chart-bar me-2"></i>Biểu đồ
+                    </a>
+
+                    <a th:href="@{${currentUser != null ? '/map' : '/login'}}" class="nav-item nav-link"
+                        th:classappend="${currentURI == '/map' ? 'active' : ''}"
+                        th:onclick="${currentUser == null} ? 'return confirm(\'Chức năng này yêu cầu đăng nhập. Bạn có muốn đi đến trang đăng nhập không?\')' : ''">
+                        <i class="fa fa-map-marker-alt me-2"></i>Bản đồ
+                    </a>
+                </div>
+
+                <div th:if="${currentUser == null}" class="p-3 text-center text-muted small">
+                    <hr>
+                    <span>Vui lòng <a th:href="@{/login}">Đăng nhập</a> để xem chi tiết.</span>
+                </div>
+        </div>
+        </nav>
+    </div>
+
+    <div class="content">
+        <nav class="navbar navbar-expand bg-light navbar-light sticky-top px-4 py-0">
+            <a href="#" class="sidebar-toggler flex-shrink-0"><i class="fa fa-bars"></i></a>
+            <form class="d-none d-md-flex ms-4" th:action="@{/search}" method="get">
+                <input class="form-control border-0" type="search" name="keyword" th:value="${searchKeyword}"
+                    placeholder="Nhập tên bão hoặc năm (vd: 2024)..." style="min-width: 350px;">
+            </form>
+            <div class="navbar-nav align-items-center ms-auto">
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-cogs me-2"></i>Chức năng
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a th:href="@{/storm/add}" class="dropdown-item"
+                            th:if="${currentUser != null and currentUser.role == 'ADMIN'}">
+                            <i class="fa fa-plus-circle me-2"></i>Tạo bão mới
+                        </a>
+
+                        <a th:href="@{/warning}" class="dropdown-item">
+                            <i class="fa fa-exclamation-triangle me-2"></i>Cảnh báo
+                        </a>
+
+                        <a th:href="@{/help}" class="dropdown-item">
+                            <i class="fa fa-question-circle me-2"></i>Trợ giúp
+                        </a>
+                    </div>
+                </div>
+                <div th:if="${currentUser != null}" class="nav-item dropdown ms-3">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img class="rounded-circle me-lg-2" th:src="@{/img/user.jpg}" alt=""
+                            style="width: 40px; height: 40px;">
+                        <span class="d-none d-lg-inline-flex" th:text="${currentUser.fullName}">User</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
+                        <a th:href="@{/logout}" class="dropdown-item">Đăng xuất</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="row g-4">
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Xu hướng số lượng bão (Tổng cả năm)</h6>
+                        <canvas id="line-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">So sánh bão đầu năm vs cuối năm</h6>
+                        <canvas id="multiple-line-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Biểu đồ bão 2024 (Theo tháng)</h6>
+                        <canvas id="bar-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Tỷ lệ Mạnh/Thường</h6>
+                        <canvas id="storm-level-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">So sánh bão đổ bộ (2022 - 2024)</h6>
+                        <canvas id="multiple-bar-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-sm-12 col-xl-6">
+                    <div class="bg-light rounded h-100 p-4">
+                        <h6 class="mb-4">Phân bố theo Tỉnh (Tổng hợp)</h6>
+                        <div style="height: 300px; display: flex; justify-content: center;">
+                            <canvas id="province-pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light rounded-top p-4">
+                <div class="row">
+                    <div class="col-12 text-center">&copy; <a href="#">QLCB System</a>, All Right Reserved.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/lib/chart/chart.min.js}"></script>
+    <script th:src="@{/lib/easing/easing.min.js}"></script>
+    <script th:src="@{/lib/waypoints/waypoints.min.js}"></script>
+    <script th:src="@{/lib/owlcarousel/owl.carousel.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/moment-timezone.min.js}"></script>
+    <script th:src="@{/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+
+    <script th:inline="javascript">
+        // --- 1. LẤY DỮ LIỆU TỪ CONTROLLER ---
+        var rawData2024 = /*[[${barData2024}]]*/[];
+        var pieVal1 = /*[[${pieValue1}]]*/ 0;
+        var pieVal2 = /*[[${pieValue2}]]*/ 0;
+        var provinceLabels = /*[[${provinceLabels}]]*/["Hà Nội", "Đà Nẵng"];
+        var provinceData = /*[[${provinceData}]]*/[10, 5];
+        var barData2024 = rawData2024 || [];
+
+        // Dữ liệu Multiple Bar Chart
+        var multiYearLabels = /*[[${multiYearLabels}]]*/[2022, 2023, 2024];
+        var qnData = /*[[${quangNinhData}]]*/[3, 5, 4];
+        var naData = /*[[${ngheAnData}]]*/[2, 4, 3];
+        var khData = /*[[${khanhHoaData}]]*/[1, 2, 5];
+
+        // Dữ liệu Single Line Chart
+        var trendYears = /*[[${trendYears}]]*/[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+        var trendData = /*[[${trendData}]]*/[5, 8, 12, 7, 9, 14, 10, 6, 8, 11];
+
+        // [MỚI] Dữ liệu Multiple Line Chart
+        var compareYears = /*[[${compareYears}]]*/[2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+        var firstHalfData = /*[[${dataFirstHalf}]]*/[1, 2, 3, 1, 2, 4, 2, 1, 2, 3];
+        var secondHalfData = /*[[${dataSecondHalf}]]*/[4, 6, 9, 6, 7, 10, 8, 5, 6, 8];
+
+        // --- 2. VẼ CÁC BIỂU ĐỒ ---
+
+        // Chart 0: Single Line Chart (Xu hướng 2015-2024)
+        if ($("#line-chart").length) {
+            var ctx0 = $("#line-chart").get(0).getContext("2d");
+            new Chart(ctx0, {
+                type: "line",
+                data: {
+                    labels: trendYears,
+                    datasets: [{
+                        label: "Số lượng bão",
+                        data: trendData,
+                        backgroundColor: "rgba(0, 156, 255, .5)",
+                        borderColor: "rgba(0, 156, 255, 1)",
+                        pointBackgroundColor: "#fff",
+                        pointBorderColor: "rgba(0, 156, 255, 1)",
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        // [MỚI] Chart 0.5: Multiple Line Chart (So sánh 6 tháng đầu/cuối năm)
+        if ($("#multiple-line-chart").length) {
+            var ctxMultiLine = $("#multiple-line-chart").get(0).getContext("2d");
+            new Chart(ctxMultiLine, {
+                type: "line",
+                data: {
+                    labels: compareYears,
+                    datasets: [
+                        {
+                            label: "6 tháng đầu năm",
+                            data: firstHalfData,
+                            backgroundColor: "rgba(0, 156, 255, .5)", // Xanh dương
+                            borderColor: "rgba(0, 156, 255, 1)",
+                            pointBackgroundColor: "#fff",
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: "6 tháng cuối năm",
+                            data: secondHalfData,
+                            backgroundColor: "rgba(235, 22, 22, .5)", // Đỏ nhạt
+                            borderColor: "rgba(235, 22, 22, 1)",
+                            pointBackgroundColor: "#fff",
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // Chart 1: Multiple Bar Chart
+        if ($("#multiple-bar-chart").length) {
+            new Chart($("#multiple-bar-chart").get(0).getContext("2d"), {
+                type: "bar",
+                data: {
+                    labels: multiYearLabels,
+                    datasets: [
+                        { label: "Quảng Ninh", data: qnData, backgroundColor: "rgba(0, 156, 255, .7)" },
+                        { label: "Nghệ An", data: naData, backgroundColor: "rgba(235, 22, 22, .7)" },
+                        { label: "Khánh Hòa", data: khData, backgroundColor: "rgba(255, 193, 7, .7)" }
+                    ]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        // Chart 2: Single Bar Chart
+        if ($("#bar-chart").length) {
+            new Chart($("#bar-chart").get(0).getContext("2d"), {
+                type: "bar",
+                data: {
+                    labels: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"],
+                    datasets: [{ label: "Số cơn bão", data: barData2024, backgroundColor: "rgba(0, 156, 255, .7)" }]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        // Chart 3: Pie Chart
+        if ($("#storm-level-chart").length) {
+            new Chart($("#storm-level-chart").get(0).getContext("2d"), {
+                type: "pie",
+                data: {
+                    labels: ["Mạnh", "Thường"],
+                    datasets: [{ backgroundColor: ["#eb1616", "#009cff"], data: [pieVal1, pieVal2] }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        // Chart 4: Doughnut Chart
+        if ($("#province-pie-chart").length) {
+            new Chart($("#province-pie-chart").get(0).getContext("2d"), {
+                type: "doughnut",
+                data: {
+                    labels: provinceLabels,
+                    datasets: [{ data: provinceData, backgroundColor: ["#009cff", "#29a9ff", "#52b6ff", "#7ac3ff", "#a3d0ff"], hoverOffset: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+</body>
+
+</html>
