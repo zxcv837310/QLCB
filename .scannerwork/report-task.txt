@@ -1,6 +1,6 @@
-projectKey=QLCB2
+projectKey=DEMO_SAST
 serverUrl=http://localhost:9000
 serverVersion=26.1.0.118079
-dashboardUrl=http://localhost:9000/dashboard?id=QLCB2
-ceTaskId=b471f7fd-9155-471f-abfd-ed143965d4dc
-ceTaskUrl=http://localhost:9000/api/ce/task?id=b471f7fd-9155-471f-abfd-ed143965d4dc
+dashboardUrl=http://localhost:9000/dashboard?id=DEMO_SAST
+ceTaskId=019138c9-d53c-440e-8094-fac3a4ad00df
+ceTaskUrl=http://localhost:9000/api/ce/task?id=019138c9-d53c-440e-8094-fac3a4ad00df
