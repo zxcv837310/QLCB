@@ -65,7 +65,7 @@ jobs:
           target: 'http://localhost:8080' # Địa chỉ web cần tấn công
           
           # THAY ĐỔI 1: Thêm tham số -r để xuất file report HTML
-          cmd_options: '-a -r zap_report.html' 
+          cmd_options: '-a -r /zap/wrk/zap_report.html' 
           
           # Không cho fail ngay, để còn chạy bước upload report ở dưới
           fail_action: false 
