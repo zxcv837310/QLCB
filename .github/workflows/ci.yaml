@@ -71,6 +71,7 @@ jobs:
           # THAY ĐỔI 1: Thêm tham số -r để xuất file report HTML
           cmd_options: '-a -r zap_report.html' 
           
+          allow_issue_writing: false
           # Không cho fail ngay, để còn chạy bước upload report ở dưới
           fail_action: false 
 
