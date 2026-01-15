@@ -57,6 +57,10 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
+      # BƯỚC MỚI: Cấp quyền ghi cho thư mục hiện tại trước khi scan
+      - name: Cap quyen ghi file (Fix loi Docker)
+        run: chmod -R 777 .
+
       # --- PHẦN QUAN TRỌNG: TẤN CÔNG & XUẤT REPORT ---
       - name: Tan cong bang OWASP ZAP
         uses: zaproxy/action-baseline@v0.12.0
@@ -65,7 +69,7 @@ jobs:
           target: 'http://localhost:8080' # Địa chỉ web cần tấn công
           
           # THAY ĐỔI 1: Thêm tham số -r để xuất file report HTML
-          cmd_options: '-a -r /zap/wrk/zap_report.html' 
+          cmd_options: '-a -r zap_report.html' 
           
           # Không cho fail ngay, để còn chạy bước upload report ở dưới
           fail_action: false 
