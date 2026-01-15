@@ -3,7 +3,6 @@ name: DevSecOps (Mongo + Local Sonar + ZAP)
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
 
 jobs:
   # --- JOB 1: BUILD & CHECK CODE ---
@@ -57,27 +56,10 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      # BƯỚC MỚI: Cấp quyền ghi cho thư mục hiện tại trước khi scan
-      - name: Cap quyen ghi file (Fix loi Docker)
-        run: chmod -R 777 .
-
-      # --- PHẦN QUAN TRỌNG: TẤN CÔNG & XUẤT REPORT ---
       - name: Tan cong bang OWASP ZAP
         uses: zaproxy/action-baseline@v0.12.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          target: 'http://localhost:8080' # Địa chỉ web cần tấn công
-          
-          # THAY ĐỔI 1: Thêm tham số -r để xuất file report HTML
-          cmd_options: '-a -r zap_report.html' 
-      
-          # Không cho fail ngay, để còn chạy bước upload report ở dưới
-          fail_action: false 
-
-      # THAY ĐỔI 2: Upload file report lên GitHub
-      - name: Upload ZAP Report
-        uses: actions/upload-artifact@v4
-        if: always() # Luôn chạy bước này dù ZAP có tìm ra lỗi hay không
-        with:
-          name: ZAP-Security-Report # Tên file khi tải về trên Web
-          path: zap_report.html      # Tên file khớp với tham số -r ở trên
+          target: 'http://localhost:8080'
+          cmd_options: '-a'
+          fail_action: true
