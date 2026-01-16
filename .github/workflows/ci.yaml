@@ -3,6 +3,7 @@ name: Pipeline (SonarCloud + ZAP)
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   # --- JOB 1: BUILD & CHECK CODE ---
@@ -62,3 +63,13 @@ jobs:
           target: 'http://localhost:8080'
           cmd_options: '-a'
           fail_action: true
+
+      - name: Luu bao cao ZAP (Upload Artifact)
+        if: always() # Quan trọng: Luôn chạy kể cả khi bước trên bị lỗi đỏ
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZAP-Security-Report
+          path: |
+            report_html.html
+            report_md.md
+            report_json.json
