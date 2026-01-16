@@ -1,4 +1,4 @@
-name: DevSecOps (Mongo + Local Sonar + ZAP)
+name: Pipeline (SonarCloud + ZAP)
 
 on:
   push:
@@ -26,13 +26,12 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      - name: Quet SonarQube (Qua Ngrok)
-        uses: SonarSource/sonarqube-scan-action@master
-        continue-on-error: true
+      - name: 4. Quet SonarCloud
+        uses: SonarSource/sonarcloud-github-action@master
+        continue-on-error: true # Cho phép chạy tiếp dù code chưa đạt chuẩn
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # Nếu code coverage < 80% (mặc định), nó sẽ dừng ở đây.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}s
 
   # --- JOB 2: TẤN CÔNG WEB ---
   security-scan:
