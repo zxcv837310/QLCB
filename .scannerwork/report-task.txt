@@ -2,5 +2,5 @@ projectKey=DEMO_SAST
 serverUrl=http://localhost:9000
 serverVersion=26.1.0.118079
 dashboardUrl=http://localhost:9000/dashboard?id=DEMO_SAST
-ceTaskId=019138c9-d53c-440e-8094-fac3a4ad00df
-ceTaskUrl=http://localhost:9000/api/ce/task?id=019138c9-d53c-440e-8094-fac3a4ad00df
+ceTaskId=5e81ed9d-65e2-43fa-bb6e-597a8a09ab28
+ceTaskUrl=http://localhost:9000/api/ce/task?id=5e81ed9d-65e2-43fa-bb6e-597a8a09ab28
