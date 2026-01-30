@@ -26,6 +26,7 @@ jobs:
         run: mvn -B verify
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
+          MY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Quet SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
@@ -55,6 +56,7 @@ jobs:
           sleep 30
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
+          MY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Tan cong bang OWASP ZAP
         uses: zaproxy/action-baseline@v0.12.0
