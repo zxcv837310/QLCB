@@ -30,7 +30,7 @@ jobs:
 
       - name: Quet SonarCloud
         uses: SonarSource/sonarcloud-github-action@master
-        continue-on-error: true # Cho phép chạy tiếp dù code chưa đạt chuẩn
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -67,7 +67,7 @@ jobs:
           fail_action: true
 
       - name: Luu bao cao ZAP (Upload Artifact)
-        if: always() # Quan trọng: Luôn chạy kể cả khi bước trên bị lỗi đỏ
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ZAP-Security-Report
